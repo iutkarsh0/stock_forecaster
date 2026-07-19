@@ -5,6 +5,7 @@ import yfinance as yf
 import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import os
+import requests # <-- ADD THIS for the Yahoo fix
 import warnings
 
 # Modeling
@@ -14,13 +15,12 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
-import ta # Technical Analysis library
+import ta 
 
 warnings.filterwarnings("ignore")
 
-# --- DIRECTORY SETUP ---
-if not os.path.exists("outputs"):
-    os.makedirs("outputs")
+# --- DIRECTORY SETUP FIX ---
+os.makedirs("outputs", exist_ok=True) # <-- This fixes the FileExistsError
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="AlphaQuant | Institutional Forecaster", layout="wide")
@@ -61,10 +61,22 @@ def calculate_risk_metrics(prices, returns):
 # --- DATA PROCESSING ---
 @st.cache_data
 def fetch_and_engineer_data(ticker, period="5y"):
-    """Fetches yfinance data and builds ML features."""
+    """Fetches yfinance data with a disguised browser session and builds ML features."""
     try:
-        df = yf.download(ticker, period=period, progress=False)
-        if df.empty: return None, "No data found."
+        # Disguise the Python script as a Google Chrome web browser
+        session = requests.Session()
+        session.headers.update({
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive"
+        })
+        
+        # Pass the disguised session to yfinance
+        df = yf.download(ticker, period=period, progress=False, session=session)
+        
+        if df.empty: 
+            return None, "No data found. Ticker may be incorrect or Yahoo is blocking."
         
         # Flatten multi-index columns if they exist (yfinance quirk)
         if isinstance(df.columns, pd.MultiIndex):
