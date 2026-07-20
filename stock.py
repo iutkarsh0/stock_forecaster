@@ -112,7 +112,7 @@ if st.sidebar.button("Run Quantitative Analysis"):
 
         # Layout adjustments
         fig.update_layout(xaxis_rangeslider_visible=False, height=600, template="plotly_dark")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
         st.markdown("---")
 
@@ -140,7 +140,7 @@ if st.sidebar.button("Run Quantitative Analysis"):
         fig_forecast.add_trace(go.Scatter(x=df.index[-100:], y=df['Close'].iloc[-100:], name="Historical", line=dict(color="blue")))
         fig_forecast.add_trace(go.Scatter(x=forecast_df.index, y=forecast_df['Forecasted_Price'], name="AI Forecast", line=dict(color="springgreen", dash="dash")))
         fig_forecast.update_layout(height=400, template="plotly_dark", title="Expected Price Trajectory")
-        st.plotly_chart(fig_forecast, use_container_width=True)
+        st.plotly_chart(fig_forecast, width="stretch")
         
         # --- 4. EXPORT / DOWNLOAD FEATURE ---
         st.markdown("### 📥 Export Data")
