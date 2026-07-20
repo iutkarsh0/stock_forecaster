@@ -335,7 +335,7 @@ pip install -r requirements.txt
 Run:
 
 ```bash
-python app.py
+https://stockforecaster-project.streamlit.app
 ```
 
 Enter:
